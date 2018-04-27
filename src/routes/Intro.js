@@ -1,10 +1,7 @@
 import React, { PureComponent } from 'react';
 import PropTypes from 'prop-types';
 import {
-  StyleSheet,
-  View,
   Image,
-  Text,
   Animated,
   Dimensions,
 } from 'react-native';
