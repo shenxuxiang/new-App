@@ -7,7 +7,6 @@ import {
   Text,
   Animated,
   Dimensions,
-  Alert,
 } from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 import { registerApp } from 'react-native-wechat';
