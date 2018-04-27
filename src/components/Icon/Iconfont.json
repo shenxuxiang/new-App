@@ -1,0 +1,48 @@
+{
+  "activity": 59102, // 日历
+  "activity_fill": 59103,
+  "addpeople": 59106, // 添加通讯录
+  "addpeople_fill": 59105,
+  "addressbook": 59108, // 添加通讯地址
+  "addressbook_fill": 59107,
+  "barrage": 59110, // 记录
+  "barrage_fill": 59109,
+  "browse": 59112, //眼睛
+  "browse_fill": 59111,
+  "brush": 59113, // 铅笔
+  "brush_fill": 59114,
+  "camera": 59116, // 相机
+  "camera_fill": 59115,
+  "collection": 59118, // 收集
+  "collection_fill": 59117,
+  "coordinates": 59120, // 定位
+  "coordinates_fill": 59119,
+  "createtask": 59122, // 创建任务
+  "createtask_fill": 59121,
+  "delete": 59124, // 删除
+  "delete_fill": 59123,
+  "document": 59125, // 文档
+  "document_fill": 59126,
+  "empty": 59127, //垃圾箱
+  "empty_fill": 59128,
+  "enter": 59129, // 右键头
+  "enterinto": 59130, // 进入
+  "enterinto_fill": 59131,
+  "homepage": 59139, // 首页
+  "homepage_fill": 59138,
+  "label": 59142, // 标签
+  "label_fill": 59143,
+  "mine": 59150, // 我的
+  "mine_fill": 59151,
+  "offline": 59155, // 在线
+  "offline_fill": 59154,
+  "right": 59169, // 对勾
+  "success": 59182, // 正确
+  "success_fill": 59181,
+  "switch": 59183, // 竖排的三个点
+  "undo": 59193, // 返回
+  "search": 59201, // 放大镜
+  "searchfill": 59202,
+  "packup": 59209, // 向上箭头
+  "unfold": 59210 // 向下箭头
+}
