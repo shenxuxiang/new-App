@@ -20,9 +20,6 @@ export default class Intro extends PureComponent {
   static propTypes = {
     navigation: PropTypes.object.isRequired,
   }
-  static defaultProps = {
-
-  }
 
   constructor() {
     super();
