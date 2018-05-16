@@ -4,29 +4,20 @@ import { connect } from 'react-redux';
 import {
   StyleSheet,
   View,
-  // Text,
+  Text,
   DeviceEventEmitter,
   StatusBar,
-  // Alert,
+  Alert,
 } from 'react-native';
-import ScrollableTabView, { ScrollableTabBar } from 'react-native-scrollable-tab-view';
+import { isEmpty } from 'lodash';
+import ScrollableTabView, { DefaultTabBar, ScrollableTabBar } from 'react-native-scrollable-tab-view';
 import TabBarIcon from '../../components/TabBarIcon';
 import NewsList from '../../components/NewsList';
-import { Storage, createAction } from '../../utils';
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  tabBarUnderlineStyle: {
-    backgroundColor: '#3e9ce9',
-    height: 2,
-  },
-});
+import { Toast, Storage, createAction } from '../../utils';
 
 @connect(({ news }) => ({ news }))
 export default class Mine extends PureComponent {
-  static navigationOptions = () => ({
+  static navigationOptions = ({ navigation }) => ({
     title: '首页',
     headerTitleStyle: {
       alignSelf: 'center',
@@ -45,13 +36,10 @@ export default class Mine extends PureComponent {
 
   static propTypes = {
     news: PropTypes.object,
-    dispatch: PropTypes.func,
-    navigation: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
     news: {},
-    dispatch: () => {},
   }
 
   constructor() {
@@ -66,6 +54,7 @@ export default class Mine extends PureComponent {
     // 获取当前分类
     Storage.getItem('MYCATEGORY')
       .then((data) => {
+        // Alert.alert('Alert', JSON.stringify(data));
         this.setState({ category: data });
       });
   }
@@ -125,3 +114,13 @@ export default class Mine extends PureComponent {
     );
   }
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tabBarUnderlineStyle: {
+    backgroundColor: '#3e9ce9',
+    height: 2,
+  },
+});

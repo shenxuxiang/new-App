@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
   StyleSheet,
+  ScrollView,
   View,
   Text,
   TouchableOpacity,
@@ -21,14 +22,13 @@ const mapDispatchToProps = {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class InitCategory extends PureComponent {
-  static navigationOptions = () => ({
+  static navigationOptions = ({ navigation }) => ({
     title: '分类',
   })
 
   static propTypes = {
     category: PropTypes.array.isRequired,
     getCategory: PropTypes.func.isRequired,
-    navigation: PropTypes.object.isRequired,
   }
 
   constructor() {
@@ -44,7 +44,7 @@ export default class InitCategory extends PureComponent {
   componentDidMount() {
     this.props.getCategory()
       .then(() => this.setState({ isLoading: false }))
-      .catch(() => this.setState({ isLoading: false }));
+      .catch(err => this.setState({ isLoading: false }));
   }
 
   updateCategory = (item) => {
