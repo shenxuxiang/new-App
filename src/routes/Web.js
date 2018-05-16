@@ -18,9 +18,11 @@ import * as WeChat from 'react-native-wechat';
 import { Toast } from '../utils';
 import Icon from '../components/Icon';
 import MyProgress from '../components/MyProgress';
+import Loading from '../components/Loading';
+import EmptyContent from '../components/EmptyContent';
 
 export default class Web extends PureComponent {
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = ({ navigation }) => ({
     header: null,
   })
 
@@ -62,33 +64,31 @@ export default class Web extends PureComponent {
     }
   }
   // webView 加载时的指示器
-  renderLoading = () => {
-    return <MyProgress
-      style={{
-        position: 'absolute',
-        left: 0,
-        top: 40,
-        width: '100%',
-        height: 2,
-      }}
-      status={this.state.status}
-      onProgressEnd={this.onProgressEnd}
-      relatedNum={0.8}
-    />
-  }
+  renderLoading = () =>
+  // return <MyProgress
+  //   style={{
+  //     position: 'absolute',
+  //     left: 0,
+  //     top: 50,
+  //     width: '100%',
+  //     height: 2,
+  //   }}
+  //   status={this.state.status}
+  //   onProgressEnd={this.onProgressEnd}
+  //   relatedNum={0.8}
+  // />
+    <Loading />
+
   // webView 加载失败呈现的状态
-  renderError = () => {
-    return <View style={styles.container_loadError}>
-      <Text style={styles.container_loadError_font}>信息加载失败了~~~</Text>
-    </View>
-  }
+  renderError = () => (<View style={styles.container_loadError}>
+    <Text style={styles.container_loadError_font}>信息加载失败了~~~</Text>
+  </View>)
 
   onNavigationStateChange = (navState) => {
     this.canGoBack = navState.canGoBack;
   }
   // 分享给好友
   shareToFriends = () => {
-    // this.setState({ isModalShow: false });
     WeChat.isWXAppInstalled()
       .then((isInstalled) => {
         if (isInstalled) {
@@ -97,9 +97,11 @@ export default class Web extends PureComponent {
             webpageUrl: 'https://juejin.im',
             title: 'this is my first app',
             description: '分享自：sxxnews',
-            thumbImage: this.props.navigation.state.params.url,
+            // thumbImage: this.props.navigation.state.params.url,
           }).catch((err) => {
             Toast.showShort(err.message);
+          }).finally(() => {
+            this.setState({ isModalShow: false });
           });
         } else {
           Toast.showShort('系统检测到您还没有安装微信软件');
@@ -108,7 +110,6 @@ export default class Web extends PureComponent {
   }
   // 分享到朋友圈
   shareToCircleOfFriends = () => {
-    // this.setState({ isModalShow: false });
     WeChat.isWXAppInstalled()
       .then((isInstalled) => {
         if (isInstalled) {
@@ -117,10 +118,12 @@ export default class Web extends PureComponent {
             webpageUrl: 'https://juejin.im',
             title: 'this is my first app',
             description: '分享自：sxxnews',
-            thumbImage: this.props.navigation.state.params.url,
+            // thumbImage: this.props.navigation.state.params.url,
           }).catch((err) => {
             Toast.showShort(err.message);
-          })
+          }).finally(() => {
+            this.setState({ isModalShow: false });
+          });
         } else {
           Toast.showShort('系统检测到您还没有安装微信软件');
         }
@@ -136,15 +139,15 @@ export default class Web extends PureComponent {
         />
         <Modal
           animationType="fade"
-          transparent={true}
+          transparent
           visible={this.state.isModalShow}
           onRequestClose={() => {
-            this.setState({ isModalShow: false })
+            this.setState({ isModalShow: false });
           }}
         >
           <TouchableWithoutFeedback
             onPress={() => {
-              this.setState({ isModalShow: false })
+              this.setState({ isModalShow: false });
             }}
           >
             <View style={styles.modal}>
@@ -204,16 +207,14 @@ export default class Web extends PureComponent {
             color="#3e9ce9"
             style={styles.iconStyle}
             onPress={() => {
-              this.setState({ isModalShow: true })
+              this.setState({ isModalShow: true });
             }}
           />
         </View>
         <View style={styles.container_content}>
           {
             <WebView
-              ref={(ref) => {
-                this.webview = ref;
-              }}
+              ref={ref => this.webview = ref}
               style={{ marginTop: 50 }}
               dataDetectorTypes="all"
               source={{ uri: 'http://juejin.im' }}
@@ -226,8 +227,8 @@ export default class Web extends PureComponent {
                 const shouldStartLoad = true;
                 return shouldStartLoad;
               }}
-              startInLoadingState={true}
-              domStorageEnabled={true}
+              startInLoadingState
+              domStorageEnabled
               onNavigationStateChange={this.onNavigationStateChange}
             />
           }
@@ -235,7 +236,7 @@ export default class Web extends PureComponent {
       </View>
     );
   }
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 50,
     backgroundColor: '#fff',
-    borderBottomWidth: 2/PixelRatio.get(),
+    borderBottomWidth: 2 / PixelRatio.get(),
     borderBottomColor: '#ccc',
     zIndex: 2,
     flexDirection: 'row',
@@ -278,8 +279,8 @@ const styles = StyleSheet.create({
     height: 2,
   },
   container_content: {
-     backgroundColor: '#e6e6e6',
-     flex: 1,
+    backgroundColor: '#e6e6e6',
+    flex: 1,
   },
   iconStyle: {
     paddingHorizontal: 15,
@@ -331,5 +332,5 @@ const styles = StyleSheet.create({
     color: '#313131',
     textAlign: 'center',
     marginTop: 5,
-  }
-})
+  },
+});

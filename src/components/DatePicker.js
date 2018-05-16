@@ -26,10 +26,10 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   container_content: {
-    width: width -95,
+    width: width - 95,
     height: 36,
     borderColor: '#ccc',
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 4,
   },
   container_content_textInput: {
@@ -40,8 +40,8 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingHorizontal: 5,
     flexDirection: 'row',
-  }
-})
+  },
+});
 
 export default class DatePicker extends PureComponent {
   static propTypes = {
@@ -72,14 +72,14 @@ export default class DatePicker extends PureComponent {
     this.state = {
       visible: false,
       time: props.time,
-    }
+    };
     this.datePickerTime = new Date(props.time);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.time !== this.props.time) {
       this.datePickerTime = new Date(nextProps.time);
-      this.setState({ time: nextProps.time, });
+      this.setState({ time: nextProps.time });
     }
   }
 
@@ -91,7 +91,7 @@ export default class DatePicker extends PureComponent {
       visible: false,
     }, () => {
       this.props.onChange(this.props.name, moment(date).format('YYYY-MM-DD'));
-    })
+    });
   }
   // 选择时间 取消
   hideDateTimePicker = () => {
@@ -113,15 +113,16 @@ export default class DatePicker extends PureComponent {
         <Text
           style={[
             styles.container_title,
-            { color: titleColor }
+            { color: titleColor },
           ]}
-        >{title}：</Text>
+        >{title}：
+        </Text>
         <View style={styles.container_content}>
           <Text
             onPress={() => this.setState({ visible: true })}
             style={[
               styles.container_content_textInput,
-              { color: !this.state.time ? placeholderTextColor : TextInputColor }
+              { color: !this.state.time ? placeholderTextColor : TextInputColor },
             ]}
           >
             {!this.state.time ? placeholder : this.state.time}
@@ -136,7 +137,6 @@ export default class DatePicker extends PureComponent {
         />
       </View>
     );
-
   }
-};
+}
 

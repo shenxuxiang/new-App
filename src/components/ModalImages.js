@@ -8,7 +8,8 @@ import {
   TouchableWithoutFeedback,
   StyleSheet,
 } from 'react-native';
-import Swiper from 'react-native-swiper';
+// import Swiper from 'react-native-swiper';
+import ImageViewer from 'react-native-image-zoom-viewer';
 
 const styles = StyleSheet.create({
   container: {
@@ -52,12 +53,16 @@ export default class ModalImages extends PureComponent {
     super(props);
     this.state = {
       initialPage: props.initialPage,
+      images: props.imageList.map(item => ({ url: item })),
     };
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.props.initialPage !== nextProps.initialPage) {
       this.setState({ initialPage: nextProps.initialPage });
+    }
+    if (nextProps.imageList !== this.props.imageList) {
+      this.setState({ images: nextProps.imageList.map(item => ({ url: item })) });
     }
   }
 
@@ -66,42 +71,28 @@ export default class ModalImages extends PureComponent {
   }
 
   render() {
-    const { visible, closeModal, imageList, animationType } = this.props;
+    const {
+      visible, closeModal, imageList, animationType,
+    } = this.props;
     const { initialPage } = this.state;
     const len = imageList.length;
     return (
       <Modal
         animationType={animationType}
         onRequestClose={() => this.props.closeModal()}
-        transparent={true}
+        transparent
         visible={visible}
       >
         <TouchableWithoutFeedback onPress={() => closeModal()}>
           <View style={styles.container}>
-            <View style={styles.container_title}>
-              <Text style={styles.container_title_font}>{`${initialPage + 1}/${len}`}</Text>
-            </View>
-            <Swiper
-              style={{ flex: 1 }}
-              horizontal={true}
-              showsButtons={false}
-              showsPagination={false}
-              loop={false}
-              index={initialPage}
-              onIndexChanged={this.onIndexChanged}
-            >
-              {
-                imageList.map(item =>
-                  <TouchableWithoutFeedback onPress={() => closeModal()} key={item}>
-                    <Image
-                      style={{ flex: 1 }}
-                      source={{ uri: item }}
-                      resizeMode="contain"
-                    />
-                  </TouchableWithoutFeedback>
-                )
-              }
-            </Swiper>
+            <TouchableWithoutFeedback onPress={() => closeModal()}>
+              <ImageViewer
+                imageUrls={this.state.images}
+                onClick={() => closeModal()}
+                index={initialPage}
+                onSwipeDown={() => closeModal()}
+              />
+            </TouchableWithoutFeedback>
           </View>
         </TouchableWithoutFeedback>
       </Modal>

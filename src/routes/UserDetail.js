@@ -5,87 +5,63 @@ import {
   StyleSheet,
   View,
   Text,
-  Image,
   ScrollView,
   StatusBar,
-  TouchableWithoutFeedback,
   TouchableOpacity,
-  Dimensions,
-  DeviceEventEmitter,
-  Modal,
+  Linking,
+  Image,
 } from 'react-native';
-import Swiper from 'react-native-swiper';
-import Lightbox from 'react-native-lightbox';
-import Carousel from 'react-native-looped-carousel';
-
-import TabBarIcon from '../../components/TabBarIcon';
-import Banner from '../../components/Banner';
-import Icon from '../../components/Icon';
-import TextInfo from '../../components/TextInfo';
-import ModalImages from '../../components/ModalImages';
-import EmptyContent from '../../components/EmptyContent';
-import { createAction, Storage } from '../../utils';
-
-const DeviceWidth = Dimensions.get('window').width;
+import Icon from '../components/Icon';
+import Loading from '../components/Loading';
+import TextInfo from '../components/TextInfo';
+import EmptyContent from '../components/EmptyContent';
+import { createAction, Toast } from '../utils';
 
 const mapStateToProps = state => ({
-  userInfo: state.userInfo.userInfo,
+  userDetail: state.userInfo.userDetail,
 });
 
 const mapDispatchToProps = {
-  getUserInfo: createAction('userInfo/getUserInfo'),
+  getUserDetail: createAction('userInfo/getUserDetail'),
 };
 
 @connect(mapStateToProps, mapDispatchToProps)
-export default class Feedback extends PureComponent {
+export default class UserDetail extends PureComponent {
   static navigationOptions = ({ navigation }) => ({
-    title: '建议',
-    headerLeft: null,
     header: null,
-    tabBarIcon: ({ focused, tintColor }) =>
-      (<TabBarIcon
-        name="brush"
-        activeName="brush_fill"
-        size={22}
-        tintColor={tintColor}
-        focused={focused}
-      />),
   })
 
   static propTypes = {
     navigation: PropTypes.object.isRequired,
-    userInfo: PropTypes.object.isRequired,
+    userDetail: PropTypes.object.isRequired,
+    getUserDetail: PropTypes.func.isRequired,
   }
 
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      imageList: [
-        'http://123.207.41.132:8080/images/111.jpg',
-        'http://123.207.41.132:8080/images/222.jpg',
-        'http://123.207.41.132:8080/images/333.jpg',
-        'http://123.207.41.132:8080/images/444.jpg',
-        'http://123.207.41.132:8080/images/555.jpg',
-      ],
-      userMobile: '',
+      userMobile: props.navigation.state.params.userMobile,
+      isShowLoading: true,
     };
   }
 
   componentDidMount() {
-    this.deviceEventListener = DeviceEventEmitter.addListener('updateUserInfo', this.getUserInfo);
-    this.getUserInfo();
+    this.props.getUserDetail({ userMobile: this.state.userMobile })
+      .catch(err => console.log(err))
+      .finally(() => this.setState({ isShowLoading: false }));
   }
 
-  componentWillUnmount = () => {
-    this.deviceEventListener.remove();
-  }
-
-  getUserInfo = () => {
-    Storage.getItem('USERMOBILE')
-      .then((data) => {
-        this.setState({ userMobile: data });
-        this.props.getUserInfo({ userMobile: data })
-          .catch(err => console.log(err));
+  // 联系我
+  onContactMe = () => {
+    const { userMobile } = this.state;
+    const url = `tel:${userMobile}`;
+    Linking.canOpenURL(url)
+      .then((supported) => {
+        if (supported) {
+          Linking.openURL(url);
+        } else {
+          Toast.showShort('您的设备无法支持此功能');
+        }
       }).catch(err => console.log(err));
   }
 
@@ -108,11 +84,46 @@ export default class Feedback extends PureComponent {
       profession,
       admissionTime,
       graduationTime,
-    } = this.props.userInfo;
-    if (!userMobile) return <EmptyContent />;
+      avatorURI,
+    } = this.props.userDetail;
+    if (this.state.isShowLoading) {
+      return (
+        <View style={styles.container}>
+          <StatusBar backgroundColor="#3e9ce9" />
+          <Loading />
+        </View>
+      );
+    }
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="#3e9ce9" />
+        <View
+          style={[
+            styles.container_header,
+          ]}
+        >
+          <Icon
+            name="undo"
+            size={30}
+            color="#333"
+            onPress={() => this.props.navigation.goBack()}
+            style={styles.container_header_back}
+          />
+
+          <View style={styles.container_header_avator}>
+            <Image
+              source={{ uri: avatorURI }}
+              resizeMode="cover"
+              style={{ width: 40, height: 40 }}
+            />
+          </View>
+
+          <Text style={styles.container_header_name}>{userName}</Text>
+          <View style={styles.container_header_icon}>
+            <Icon name="addressbook" size={26} color="#333" onPress={this.onContactMe} />
+          </View>
+        </View>
+
         <View style={styles.body}>
           <ScrollView
             style={styles.body_content}
@@ -207,15 +218,6 @@ export default class Feedback extends PureComponent {
                 viewStyle={{ borderBottomWidth: 0 }}
               />
             </View>
-            <View style={styles.body_content_footer}>
-              <TouchableOpacity
-                opacity={0.8}
-                style={styles.body_content_footer_btn}
-                onPress={() => this.props.navigation.navigate('AboutMe', { userMobile: this.state.userMobile })}
-              >
-                <Text style={{ fontSize: 16, color: '#fff' }}>修改信息</Text>
-              </TouchableOpacity>
-            </View>
           </ScrollView>
         </View>
       </View>
@@ -227,28 +229,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  header: {
-    position: 'absolute',
+  container_header: {
+    // position: 'absolute',
+    // top: 0,
     width: '100%',
     height: 50,
     paddingHorizontal: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: '#999',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: '#f1f1f1',
-    zIndex: 12,
-  },
-  header_left: {
-    fontSize: 14,
-    color: 'black',
-  },
-  header_right: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: 'center',
+    backgroundColor: 'rgba(230,230,230,.95)',
+    // zIndex: 10,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ccc',
   },
+  container_header_back: {
+    paddingRight: 10,
+  },
+  container_header_avator: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginRight: 10,
+    backgroundColor: '#ccc',
+    overflow: 'hidden',
+  },
+  container_header_name: {
+    fontSize: 16,
+    color: 'black',
+  },
+  container_header_icon: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+
+
   body: {
     flex: 1,
   },

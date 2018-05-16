@@ -23,14 +23,14 @@ export default {
       return {
         ...state,
         login: data,
-      }
+      };
     },
     registerSuccess(state, { payload }) {
       const { data = EMPTY_OBJ } = payload;
       return {
         ...state,
         register: data,
-      }
+      };
     },
   },
   effects: {

@@ -47,7 +47,9 @@ export default class NewsListItem extends PureComponent {
   }
 
   render() {
-    const { url, content, title, time } = this.props;
+    const {
+      url, content, title, time,
+    } = this.props;
     return (
       <TouchableHighlight
         style={styles.container}
@@ -58,7 +60,7 @@ export default class NewsListItem extends PureComponent {
           <View style={styles.conatiner_content_img}>
             <Image
               style={styles.conatiner_content_img_con}
-              source={{uri: url}}
+              source={{ uri: url }}
               resizeMode="cover"
             />
           </View>
@@ -66,17 +68,19 @@ export default class NewsListItem extends PureComponent {
             <Text
               style={[
                 styles.conatiner_content_con_description,
-                { color: this.state.descriptionfontColor }
+                { color: this.state.descriptionfontColor },
               ]}
               numberOfLines={2}
-            >{content}</Text>
+            >{content}
+            </Text>
             <View style={styles.conatiner_content_con_info}>
               <Text
                 style={[
                   styles.conatiner_content_con_info_title,
-                  { color: this.state.titleFontColor }
+                  { color: this.state.titleFontColor },
                 ]}
-              >{title}</Text>
+              >{title}
+              </Text>
               <Text style={styles.conatiner_content_con_info_time}>{moment(time).fromNow()}</Text>
             </View>
           </View>
@@ -84,7 +88,7 @@ export default class NewsListItem extends PureComponent {
       </TouchableHighlight>
     );
   }
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -92,6 +96,7 @@ const styles = StyleSheet.create({
     height: 80,
     paddingHorizontal: 10,
     paddingVertical: 5,
+    backgroundColor: '#fafafa',
   },
   conatiner_content: {
     flex: 1,
@@ -126,4 +131,4 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#ccc',
   },
-})
+});

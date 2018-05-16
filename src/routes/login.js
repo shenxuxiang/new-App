@@ -15,8 +15,11 @@ import {
   Keyboard,
 } from 'react-native';
 import { connect } from 'react-redux';
-import { createAction, Toast, RegExpObj, Storage, } from '../utils';
+import * as WeChat from 'react-native-wechat';
+import Loading from '../components/Loading';
+import { createAction, Toast, RegExpObj, Storage } from '../utils';
 import Icon from '../components/Icon';
+
 const { height } = Dimensions.get('window');
 const styles = StyleSheet.create({
   container: {
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
   container_inputbox: {
     width: '100%',
     height: 46,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 6,
     marginVertical: 10,
     flexDirection: 'row',
@@ -58,7 +61,7 @@ const styles = StyleSheet.create({
     padding: 0,
     borderRadius: 6,
     borderColor: '#ccc',
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     backgroundColor: '#3e9ce9',
     overflow: 'hidden',
     flexDirection: 'row',
@@ -70,7 +73,7 @@ const styles = StyleSheet.create({
     height: 44,
     borderRadius: 6,
     borderColor: '#177cce',
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     backgroundColor: '#3e9ce9',
     justifyContent: 'center',
     alignItems: 'center',
@@ -85,6 +88,7 @@ const styles = StyleSheet.create({
     left: 0,
     width: '100%',
     height: '100%',
+    borderRadius: 6,
     backgroundColor: 'rgba(255,255,255,.5)',
   },
   container_footer: {
@@ -104,7 +108,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   login: state.app.login,
 });
 
@@ -114,9 +118,10 @@ const mapDispatchToProps = {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Login extends PureComponent {
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = ({ navigation }) => ({
     title: '登录',
-    headerLeft:  null,
+    headerLeft: null,
+    headerTitleStyle: { alignSelf: 'center' },
   })
 
   static propTypes = {
@@ -133,7 +138,8 @@ export default class Login extends PureComponent {
       mobileBorderColor: '#ccc',
       nameBorderColor: '#ccc',
       isReady: false,
-    }
+      isLoading: false,
+    };
   }
 
   componentWillMount() {
@@ -180,21 +186,28 @@ export default class Login extends PureComponent {
       Toast.showShort('电话号码格式不对，重新输入');
       return;
     }
-    this.props.toLogin({userMobile, userName})
+    this.setState({ isLoading: true });
+    this.props.toLogin({ userMobile, userName })
       .then(() => {
         const { login } = this.props;
         if (login.message === 'SUCCESS') {
-          this.setNavigator();
+          this.setState({ isLoading: false }, () => {
+            this.setNavigator();
+          });
         } else {
-          Toast.showShort(login.message);
+          this.setState({ isLoading: false }, () => {
+            Toast.showShort(login.message);
+          });
         }
       }).catch((err) => {
-        console.log(err);
+        this.setState({ isLoading: false });
       });
   }
 
   render() {
-    const { userName, userMobile, mobileBorderColor, nameBorderColor, isReady } = this.state;
+    const {
+      userName, userMobile, mobileBorderColor, nameBorderColor, isReady, isLoading,
+    } = this.state;
     return (
       <ScrollView
         style={styles.container}
@@ -203,107 +216,112 @@ export default class Login extends PureComponent {
         showsVerticalScrollIndicator={false}
         scrollEnabled={false}
       >
-      <View style={styles.container_box}>
-        <View
-          style={[
+        <View style={styles.container_box}>
+          <View
+            style={[
             styles.container_inputbox,
-            { marginTop: 40, borderColor: mobileBorderColor }
+            { marginTop: 40, borderColor: mobileBorderColor },
           ]}
-        >
-          <Icon name="addpeople" size={24} color="rgba(0,0,0,.4)" />
-          <TextInput
-            style={styles.container_inputbox_input}
-            value={userMobile}
-            placeholder="请输入手机号"
-            underlineColorAndroid="transparent"
-            onChangeText={(text) => this.setState({ userMobile: text })}
-            onFocus={() => this.setState({ mobileBorderColor: '#3e9ce9' })}
-            onBlur={() => this.setState({ mobileBorderColor: '#ccc' })}
-            multiline = {false}
-            keyboardType="numeric"
-            placeholderTextColor ="rgba(0,0,0,.6)"
-          />
-          <Icon
-            name="delete_fill"
-            size={userMobile ? 24 : 0}
-            color="rgba(0,0,0,.2)"
-            onPress={() => this.setState({ userMobile: ''})}
-          />
-        </View>
-        <View
-          style={[
-            styles.container_inputbox,
-            { borderColor: nameBorderColor }
-          ]}
-        >
-          <Icon name="mine" size={24} color="rgba(0,0,0,.4)" />
-          <TextInput
-            style={styles.container_inputbox_input}
-            value={userName}
-            placeholder="请输入姓名"
-            underlineColorAndroid="transparent"
-            onChangeText={(text) => this.setState({ userName: text })}
-            onFocus={() => this.setState({ nameBorderColor: '#3e9ce9' })}
-            onBlur={() => this.setState({ nameBorderColor: '#ccc' })}
-            multiline = {false}
-            keyboardType="default"
-            placeholderTextColor ="rgba(0,0,0,.6)"
-          />
-          <Icon
-            name="delete_fill"
-            size={userName ? 24 : 0}
-            color="rgba(0,0,0,.2)"
-            onPress={() => this.setState({ userName: '' })}
-          />
-        </View>
-        <View style={styles.container_reader}>
-          <TouchableWithoutFeedback
-            onPress={() => this.setState({ isReady: !isReady })}
           >
-            <View
-              style={[
+            <Icon name="addpeople" size={24} color="rgba(0,0,0,.4)" />
+            <TextInput
+              style={styles.container_inputbox_input}
+              value={userMobile}
+              placeholder="请输入手机号"
+              underlineColorAndroid="transparent"
+              onChangeText={text => this.setState({ userMobile: text })}
+              onFocus={() => this.setState({ mobileBorderColor: '#3e9ce9' })}
+              onBlur={() => this.setState({ mobileBorderColor: '#ccc' })}
+              multiline={false}
+              keyboardType="numeric"
+              placeholderTextColor="rgba(0,0,0,.6)"
+            />
+            <Icon
+              name="delete_fill"
+              size={userMobile ? 24 : 0}
+              color="rgba(0,0,0,.2)"
+              onPress={() => this.setState({ userMobile: '' })}
+            />
+          </View>
+          <View
+            style={[
+            styles.container_inputbox,
+            { borderColor: nameBorderColor },
+          ]}
+          >
+            <Icon name="mine" size={24} color="rgba(0,0,0,.4)" />
+            <TextInput
+              style={styles.container_inputbox_input}
+              value={userName}
+              placeholder="请输入姓名"
+              underlineColorAndroid="transparent"
+              onChangeText={text => this.setState({ userName: text })}
+              onFocus={() => this.setState({ nameBorderColor: '#3e9ce9' })}
+              onBlur={() => this.setState({ nameBorderColor: '#ccc' })}
+              multiline={false}
+              keyboardType="default"
+              placeholderTextColor="rgba(0,0,0,.6)"
+            />
+            <Icon
+              name="delete_fill"
+              size={userName ? 24 : 0}
+              color="rgba(0,0,0,.2)"
+              onPress={() => this.setState({ userName: '' })}
+            />
+          </View>
+          <View style={styles.container_reader}>
+            <TouchableWithoutFeedback
+              onPress={() => this.setState({ isReady: !isReady })}
+            >
+              <View
+                style={[
                 styles.container_reader_iconbox,
                 {
                   borderColor: isReady ? 'transparent' : '#ccc',
                   backgroundColor: isReady ? '#3e9ce9' : 'transparent',
-                }
+                },
               ]}
+              >
+                <Icon
+                  name="right"
+                  color="#fff"
+                  size={isReady ? 18 : 0}
+                />
+              </View>
+            </TouchableWithoutFeedback>
+            <Text style={{ marginLeft: 10, color: 'black' }}>我已阅读并同意</Text>
+            <Text style={{ color: '#f80' }}>用户协议</Text>
+          </View>
+          <View>
+            <TouchableOpacity
+              style={styles.container_submit}
+              opacity={0.6}
+              onPress={this.onSubmit}
             >
-              <Icon
-                name="right"
-                color="#fff"
-                size={isReady ? 18 : 0}
-              />
-            </View>
-          </TouchableWithoutFeedback>
-          <Text style={{ marginLeft: 10, color: 'black' }}>我已阅读并同意</Text>
-          <Text style={{ color: '#f80' }}>用户协议</Text>
-        </View>
-        <View>
-          <TouchableOpacity
-            style={styles.container_submit}
-            opacity={0.6}
-            onPress={this.onSubmit}
-          >
-            <Text style={styles.container_submit_text}>登录</Text>
-          </TouchableOpacity>
-          {
+              <Text style={styles.container_submit_text}>登录</Text>
+            </TouchableOpacity>
+            {
             userName && userMobile && isReady ? null :
-              <View style={styles.container_submit_mask}/>
+            <View style={styles.container_submit_mask} />
           }
+          </View>
+          <View style={styles.container_footer}>
+            <Text
+              style={styles.container_footer_text}
+              onPress={this.handlerEmpty}
+            >点着玩
+            </Text>
+            <Text style={{ color: '#999', paddingHorizontal: 5 }}>|</Text>
+            <Text
+              style={styles.container_footer_text}
+              onPress={this.toRegister}
+            >去注册
+            </Text>
+          </View>
         </View>
-        <View style={styles.container_footer}>
-          <Text
-            style={styles.container_footer_text}
-            onPress={this.handlerEmpty}
-          >点着玩</Text>
-          <Text style={{ color: '#999', paddingHorizontal: 5 }}>|</Text>
-          <Text
-            style={styles.container_footer_text}
-            onPress={this.toRegister}
-          >去注册</Text>
-        </View>
-      </View>
+        {
+        isLoading ? <Loading /> : null
+      }
       </ScrollView>
     );
   }

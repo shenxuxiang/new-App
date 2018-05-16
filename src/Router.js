@@ -6,7 +6,7 @@ import {
   addNavigationHelpers,
   NavigationActions,
 } from 'react-navigation';
-import { StyleSheet, BackHandler, Alert } from 'react-native';
+import { StyleSheet, BackHandler } from 'react-native';
 import { connect } from 'react-redux';
 
 import Intro from './routes/Intro';
@@ -18,6 +18,8 @@ import Category from './routes/Home/Category';
 import Feedback from './routes/Home/Feedback';
 import About from './routes/Home/About';
 import Web from './routes/Web';
+import AboutMe from './routes/AboutMe';
+import UserDetail from './routes/UserDetail';
 
 const TabContainer = TabNavigator(
   {
@@ -28,10 +30,11 @@ const TabContainer = TabNavigator(
   },
   {
     tabBarPosition: 'bottom',
-    initialRouteName:'Mine',
+    // initialRouteName:'About',
     swipeEnabled: false,
     animationEnabled: false,
     lazy: true,
+    backBehavior: 'none',
     tabBarOptions: {
       backBehavior: 'none',
       activeTintColor: '#3e9ce9',
@@ -55,12 +58,12 @@ const TabContainer = TabNavigator(
       },
       tabStyle: {
         padding: 0,
-      }
-    }
+      },
+    },
   },
 );
 
-const AppNavigation =  StackNavigator(
+const AppNavigation = StackNavigator(
   {
     Intro: {
       screen: Intro,
@@ -81,11 +84,12 @@ const AppNavigation =  StackNavigator(
       screen: TabContainer,
     },
     Web: { screen: Web },
+    AboutMe: { screen: AboutMe },
+    UserDetail: { screen: UserDetail },
   },
   {
     mode: 'card',
     headerMode: 'screen',
-    // initialRouteName: 'Web',
     navigationOptions: {
       headerStyle: {
         backgroundColor: '#3e9ce9',
@@ -106,14 +110,14 @@ const getCurrentScreen = (navigationState) => {
   // 判断当前route是否含有routes集合
   if (route.routes) return getCurrentScreen(route);
   return route.routeName;
-}
+};
 
 @connect(({ router }) => ({ router }))
 export default class Router extends PureComponent {
   static propTypes = {}
   constructor() {
     super();
-    this.state = {}
+    this.state = {};
   }
 
   componentDidMount() {
@@ -128,13 +132,19 @@ export default class Router extends PureComponent {
     const currentScreen = getCurrentScreen(this.props.router);
     if (
       currentScreen === 'InitCategory' ||
-      currentScreen === 'Home'
+      currentScreen === 'Login' ||
+      currentScreen === 'Register' ||
+      currentScreen === 'Mine' ||
+      currentScreen === 'Category' ||
+      currentScreen === 'Feedback' ||
+      currentScreen === 'About'
     ) {
       return false;
-    } else {
-      this.props.dispatch(NavigationActions.back());
+    } else if (currentScreen === 'Intro') {
       return true;
     }
+    this.props.dispatch(NavigationActions.back());
+    return true;
   }
 
   render() {
@@ -150,4 +160,4 @@ export default class Router extends PureComponent {
 
 export function routerReducer(state, action = {}) {
   return AppNavigation.router.getStateForAction(action, state);
-};
+}

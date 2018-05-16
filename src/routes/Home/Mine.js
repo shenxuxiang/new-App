@@ -4,37 +4,54 @@ import { connect } from 'react-redux';
 import {
   StyleSheet,
   View,
-  Text,
+  // Text,
   DeviceEventEmitter,
   StatusBar,
+  // Alert,
 } from 'react-native';
-import { isEmpty } from 'lodash';
-import ScrollableTabView, { DefaultTabBar, ScrollableTabBar } from 'react-native-scrollable-tab-view';
+import ScrollableTabView, { ScrollableTabBar } from 'react-native-scrollable-tab-view';
 import TabBarIcon from '../../components/TabBarIcon';
 import NewsList from '../../components/NewsList';
-import { Toast, Storage, createAction } from '../../utils';
+import { Storage, createAction } from '../../utils';
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  tabBarUnderlineStyle: {
+    backgroundColor: '#3e9ce9',
+    height: 2,
+  },
+});
 
 @connect(({ news }) => ({ news }))
 export default class Mine extends PureComponent {
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = () => ({
     title: '首页',
+    headerTitleStyle: {
+      alignSelf: 'center',
+    },
     headerLeft: null,
+    headerRight: null,
     tabBarIcon: ({ focused, tintColor }) =>
-      <TabBarIcon
+      (<TabBarIcon
         name="homepage"
         activeName="homepage_fill"
         size={22}
         tintColor={tintColor}
         focused={focused}
-      />,
+      />),
   })
 
   static propTypes = {
     news: PropTypes.object,
+    dispatch: PropTypes.func,
+    navigation: PropTypes.object.isRequired,
   }
 
   static defaultProps = {
     news: {},
+    dispatch: () => {},
   }
 
   constructor() {
@@ -48,7 +65,7 @@ export default class Mine extends PureComponent {
   componentWillMount() {
     // 获取当前分类
     Storage.getItem('MYCATEGORY')
-      .then(data => {
+      .then((data) => {
         this.setState({ category: data });
       });
   }
@@ -71,11 +88,11 @@ export default class Mine extends PureComponent {
     return (
       <View style={styles.container}>
         <StatusBar
-          animated={true}
+          animated
           backgroundColor="#3e9ce9"
         />
         <ScrollableTabView
-          renderTabBar={() => <ScrollableTabBar/>}
+          renderTabBar={() => <ScrollableTabBar />}
           tabBarPosition="top"
           locked={false}
           tabBarUnderlineStyle={styles.tabBarUnderlineStyle}
@@ -84,11 +101,12 @@ export default class Mine extends PureComponent {
           tabBarInactiveTextColor="#aaa"
           scrollWithoutAnimation={false}
           initialPage={this.state.initialPage}
+          page={this.state.initialPage}
           onChangeTab={this.onChangeTab}
         >
           {
-            this.state.category.map(item => {
-              let data = {};
+            this.state.category.map((item) => {
+              const data = {};
               const key = `news_${item.id}`;
               return (
                 <View key={item.id} tabLabel={item.label} style={styles.container}>
@@ -106,14 +124,4 @@ export default class Mine extends PureComponent {
       </View>
     );
   }
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  tabBarUnderlineStyle: {
-    backgroundColor: '#3e9ce9',
-    height: 2,
-  }
-})
+}

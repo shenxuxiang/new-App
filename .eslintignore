@@ -1,0 +1,10 @@
+/__tests__
+/android
+/ios
+/mock
+/mock_files
+/node_modules
+/babelrc
+/.buckconfig
+/.flowconfig
+/.watchmanconfig

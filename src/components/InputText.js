@@ -7,7 +7,8 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import {isEmpty} from 'lodash';
+import { isEmpty } from 'lodash';
+
 const { width } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -25,9 +26,9 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   container_content: {
-    width: width -95,
+    width: width - 95,
     borderColor: '#ccc',
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     borderRadius: 4,
   },
   container_content_textInput: {
@@ -36,8 +37,8 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     paddingHorizontal: 5,
     flexDirection: 'row',
-  }
-})
+  },
+});
 
 export default function InputText(props) {
   const {
@@ -61,16 +62,17 @@ export default function InputText(props) {
       <Text
         style={[
           styles.container_title,
-          { color: titleColor }
+          { color: titleColor },
         ]}
-      >{title}：</Text>
+      >{title}：
+      </Text>
       <View style={styles.container_content}>
         <TextInput
           style={[
             styles.container_content_textInput,
-            { maxHeight: maxHeight, color: TextInputColor }
+            { maxHeight, color: TextInputColor },
           ]}
-          onChangeText={(text) => onChangeText(name, text)}
+          onChangeText={text => onChangeText(name, text)}
           value={value}
           placeholder={placeholder}
           underlineColorAndroid="transparent"
@@ -82,7 +84,7 @@ export default function InputText(props) {
       </View>
     </View>
   );
-};
+}
 
 InputText.propTypes = {
   title: PropTypes.string.isRequired,

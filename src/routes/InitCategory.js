@@ -3,13 +3,14 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import {
   StyleSheet,
-  ScrollView,
   View,
   Text,
   TouchableOpacity,
 } from 'react-native';
 import SelectCategory from '../components/SelectCategory';
+import Loading from '../components/Loading';
 import { Toast, Storage, createAction } from '../utils';
+import EmptyContent from '../components/EmptyContent';
 
 const mapStateToProps = state => ({
   category: state.app.category,
@@ -20,23 +21,30 @@ const mapDispatchToProps = {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class InitCategory extends PureComponent {
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = () => ({
     title: '分类',
   })
 
-  static propTypes = {}
+  static propTypes = {
+    category: PropTypes.array.isRequired,
+    getCategory: PropTypes.func.isRequired,
+    navigation: PropTypes.object.isRequired,
+  }
+
   constructor() {
     super();
     this.state = {
       selectedArray: [],
       refreshing: false,
+      isLoading: true,
     };
     this.maxCategory = 5;
   }
 
   componentDidMount() {
     this.props.getCategory()
-      .catch(err => console.log(err));
+      .then(() => this.setState({ isLoading: false }))
+      .catch(() => this.setState({ isLoading: false }));
   }
 
   updateCategory = (item) => {
@@ -82,6 +90,7 @@ export default class InitCategory extends PureComponent {
   }
 
   render() {
+    if (this.props.category.length <= 0) return <EmptyContent />;
     return (
       <View
         style={styles.container}
@@ -111,10 +120,11 @@ export default class InitCategory extends PureComponent {
             <Text style={styles.button_font}>确认</Text>
           </TouchableOpacity>
         </View>
+        { this.state.isLoading ? <Loading /> : null }
       </View>
     );
   }
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -151,5 +161,5 @@ const styles = StyleSheet.create({
   button_font: {
     fontSize: 16,
     color: '#fff',
-  }
-})
+  },
+});

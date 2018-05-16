@@ -17,7 +17,7 @@ export default function TabBarIcon(props) {
       color={tintColor}
     />
   );
-};
+}
 
 TabBarIcon.propTypes = {
   name: PropTypes.string.isRequired,

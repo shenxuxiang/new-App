@@ -59,7 +59,7 @@ export default class Banner extends PureComponent {
   interval = () => {
     const len = this.props.dataSource.length;
     this.timer = setTimeout(() => {
-      let position =  this.state.idx + 1;
+      let position = this.state.idx + 1;
       if (position === len) {
         this.refScrollView.setPageWithoutAnimation(0);
       }
@@ -125,12 +125,14 @@ export default class Banner extends PureComponent {
   }
 
   render() {
-    const { width, height, dataSource, initialPage } = this.props;
-    const pageStyle = [{width: width, height: height}];
+    const {
+      width, height, dataSource, initialPage,
+    } = this.props;
+    const pageStyle = [{ width, height }];
     const total = dataSource.length;
     let pages = [];
     pages = Object.keys(dataSource);
-    pages.unshift(total - 1 + '');
+    pages.unshift(`${total - 1}`);
     pages.push('0');
     return (
       <View
@@ -146,26 +148,24 @@ export default class Banner extends PureComponent {
         >
           {
             pages.map((item, index) =>
-              <View style={pageStyle} key={index}>
+              (<View style={pageStyle} key={index}>
                 <Image
                   source={{ uri: dataSource[item] }}
                   style={{ width, height }}
                 />
-              </View>
-            )
+               </View>))
           }
         </ViewPagerAndroid>
         <View style={styles.pagination}>
           {
             dataSource.map((item, index) =>
-              <View
+              (<View
                 key={index}
                 style={[
                   styles.pagination_item,
-                  this.state.idx === index ? styles.active : null
+                  this.state.idx === index ? styles.active : null,
                 ]}
-              />
-            )
+              />))
           }
         </View>
       </View>
@@ -197,4 +197,4 @@ const styles = StyleSheet.create({
   active: {
     backgroundColor: '#fff',
   },
-})
+});

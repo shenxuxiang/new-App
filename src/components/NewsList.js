@@ -1,157 +1,18 @@
 import React, { PureComponent } from 'react';
 import {
   StyleSheet,
-  FlatList,
   View,
   Text,
   ActivityIndicator,
   PixelRatio,
+  ListView,
 } from 'react-native';
 import PropTypes from 'prop-types';
 import { isEmpty } from 'lodash';
 import { createAction } from '../utils';
 import NewsListItem from './NewsListItem';
-
-export default class NewsList extends PureComponent {
-  static propTypes = {
-    dataSource: PropTypes.object,
-    id: PropTypes.oneOfType([
-      PropTypes.number.isRequired,
-      PropTypes.string.isRequired,
-    ]),
-    dispatch: PropTypes.func.isRequired,
-    navigation: PropTypes.object.isRequired,
-  }
-
-  static defaultProps = {
-    dataSource: {},
-  }
-
-  constructor(props) {
-    super(props);
-    this.state = {
-      refreshing: false,
-      dataList: isEmpty(props.dataSource) ? [] : props.dataSource.content,
-    };
-    this.pageNum = 1;
-    this.pageSize = 10;
-    this.loadingStatus = 'STOP'; // STOP 休息 LOADING 加载中 NOTMORE 没有更多了
-    this.fHeight = 0;
-  }
-
-  componentDidMount() {
-    this.props.dispatch(createAction('news/refreshingNews')({
-      id: this.props.id,
-      pageNum: this.pageNum,
-      pageSize: this.pageSize,
-    })).then(() => {
-      this.setState({
-        dataList: isEmpty(this.props.dataSource) ? [] : this.props.dataSource.content,
-      });
-    });
-  }
-
-  onRefresh = () => {
-    this.pageNum = 1;
-    this.pageSize = 10;
-    this.props.dispatch(createAction('news/refreshingNews')({
-      id: this.props.id,
-      pageNum: this.pageNum,
-      pageSize: this.pageSize,
-    })).then(() => {
-      this.setState({
-        refreshing: false,
-        dataList: isEmpty(this.props.dataSource) ? [] : this.props.dataSource.content,
-      });
-      this.loadingStatus = 'STOP';
-    });
-  }
-  onEndReached = () => {
-    if (this.loadingStatus === 'LOADING' || this.loadingStatus === 'NOTMORE') return;
-
-    this.loadingStatus = 'LOADING';
-    this.props.dispatch(createAction('news/refreshingNews')({
-      id: this.props.id,
-      pageNum: this.pageNum + 1,
-      pageSize: this.pageSize,
-    })).then(() => {
-      const { pageNum, total, content } = this.props.dataSource;
-      if (pageNum >= Math.ceil(total / this.pageSize)) {
-        this.loadingStatus = 'NOTMORE';
-      } else {
-        this.loadingStatus = 'STOP';
-      }
-      this.pageNum = pageNum;
-      this.setState({
-        dataList: this.state.dataList.concat(this.props.dataSource.content),
-      });
-    });
-  }
-
-  emptyComponent = () => {
-    return <View style={{
-      height: this.fHeight,
-      alignItems: 'center',
-      justifyContent: 'center',
-    }}>
-      <Text style={{
-          fontSize: 16
-      }}>暂无数据</Text>
-    </View>
-  }
-  footerComponent = () => {
-    let content = null;
-    if (this.loadingStatus === 'LOADING') {
-      content = (
-        <View style={styles.container_footer}>
-          <ActivityIndicator
-            size="small"
-            color="#999"
-            style={styles.container_footer_indicator}
-          />
-          <Text>
-            努力加载中...
-          </Text>
-        </View>
-      );
-    } else if (this.loadingStatus === 'NOTMORE') {
-      content = (
-        <View style={styles.container_footer}>
-          <Text>
-            我是有底线的~~~
-          </Text>
-        </View>
-      );
-    }
-    return content;
-  }
-
-  render() {
-    const initNum = isEmpty(this.state.dataList) ? 10 : this.state.dataList.length;
-    return (
-      <FlatList
-        initialNumToRender={initNum}
-        onLayout={e => {
-          this.fHeight = e.nativeEvent.layout.height
-        }}
-        keyExtractor={(item, index) => item.id}
-        style={styles.container}
-        getItemLayout={(data, index) => ({
-          length: 100, offset: 100 * (index), index,
-        })}
-        data={this.state.dataList}
-        renderItem={({item}) => <NewsListItem {...item} navigation={this.props.navigation} />}
-        ListEmptyComponent={this.emptyComponent}
-        ListFooterComponent={this.footerComponent}
-        ItemSeparatorComponent={() => <View style={styles.itemSeparte}/>}
-        onRefresh={this.onRefresh}
-        refreshing={this.state.refreshing}
-        onEndReached={this.onEndReached}
-        onEndReachedThreshold={0.1}
-      />
-    );
-  }
-}
+import EmptyContent from '../components/EmptyContent';
+import PullList from '../components/PullList';
 
 const styles = StyleSheet.create({
   container: {
@@ -168,7 +29,120 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   itemSeparte: {
-    height: 2/PixelRatio.get(),
+    height: StyleSheet.hairlineWidth,
     backgroundColor: '#ccc',
   },
-})
+});
+
+export default class NewsList extends PureComponent {
+  static propTypes = {
+    dataSource: PropTypes.object,
+    id: PropTypes.oneOfType([
+      PropTypes.number.isRequired,
+      PropTypes.string.isRequired,
+    ]),
+    dispatch: PropTypes.func,
+    navigation: PropTypes.object.isRequired,
+  }
+
+  static defaultProps = {
+    dataSource: {},
+    dispatch: () => {},
+  }
+
+  constructor(props) {
+    super(props);
+    this.dataList = this.computedDataSource();
+    this.state = {
+      refreshing: false,
+      loadStatus: 'IDLE', // IDLE 闲置 LOADING 加载中 NOTMORE 没有更多了
+      dataSource: (new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 }))
+        .cloneWithRows(this.dataList),
+    };
+    this.pageNum = 1;
+    this.pageSize = 10;
+  }
+
+  componentDidMount() {
+    this.props.dispatch(createAction('news/refreshingNews')({
+      id: this.props.id,
+      pageNum: this.pageNum,
+      pageSize: this.pageSize,
+    })).then(() => {
+      this.dataList = this.computedDataSource(this.props.dataSource);
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(this.dataList),
+      });
+    });
+  }
+
+  computedDataSource = (data) => {
+    if (isEmpty(data)) return [];
+    return data.content;
+  }
+
+  onRefresh = () => {
+    this.pageNum = 1;
+    this.pageSize = 10;
+    this.setState({
+      refreshing: true,
+      loadStatus: 'IDLE',
+    });
+    this.props.dispatch(createAction('news/refreshingNews')({
+      id: this.props.id,
+      pageNum: this.pageNum,
+      pageSize: this.pageSize,
+    })).then(() => {
+      this.dataList = this.computedDataSource(this.props.dataSource);
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(this.dataList),
+        refreshing: false,
+      });
+    });
+  }
+
+  onEndReached = () => {
+    if (this.state.loadStatus === 'LOADING' || this.state.loadStatus === 'NOTMORE') return;
+    this.setState({ loadStatus: 'LOADING' });
+    this.props.dispatch(createAction('news/refreshingNews')({
+      id: this.props.id,
+      pageNum: this.pageNum + 1,
+      pageSize: this.pageSize,
+    })).then(() => {
+      const { pageNum, total, content } = this.props.dataSource;
+      let loadStatus;
+      if (pageNum >= Math.ceil(total / this.pageSize)) {
+        loadStatus = 'NOTMORE';
+      } else {
+        loadStatus = 'IDLE';
+      }
+      this.pageNum = pageNum;
+      this.dataList = this.dataList.concat(content);
+      this.setState({
+        dataSource: this.state.dataSource.cloneWithRows(this.dataList),
+        loadStatus,
+      });
+    });
+  }
+
+  render() {
+    const initNum = isEmpty(this.dataList) ? 10 : this.dataList.length;
+    if (isEmpty(this.dataList)) return <EmptyContent />;
+    return (
+      <PullList
+        dataSource={this.state.dataSource}
+        loadStatus={this.state.loadStatus}
+        onEndReached={this.onEndReached}
+        onEndReachedThreshold={50}
+
+        refreshing={this.state.refreshing}
+        onRefresh={this.onRefresh}
+
+        renderRow={(rowData, rowID) => <NewsListItem {...rowData} navigation={this.props.navigation} />}
+        initialListSize={this.pageSize}
+        pageSize={this.pageSize}
+        renderSeparator={() => <View style={styles.itemSeparte} />}
+      />
+    );
+  }
+}

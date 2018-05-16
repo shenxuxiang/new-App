@@ -25,7 +25,7 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   container_content: {
-    width: width -95,
+    width: width - 95,
     height: 36,
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    borderWidth: 1,
+    borderWidth: StyleSheet.hairlineWidth,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -53,8 +53,8 @@ const styles = StyleSheet.create({
   container_content_item_text: {
     marginLeft: 5,
     fontSize: 14,
-  }
-})
+  },
+});
 
 export default class RadioBox extends PureComponent {
   static propTypes = {
@@ -80,7 +80,7 @@ export default class RadioBox extends PureComponent {
     super(props);
     this.state = {
       value: props.value,
-    }
+    };
   }
 
   componentWillReceiveProps(nextProps) {
@@ -108,48 +108,47 @@ export default class RadioBox extends PureComponent {
         <Text
           style={[
             styles.container_title,
-            { color: titleColor }
+            { color: titleColor },
           ]}
-        >{title}：</Text>
+        >{title}：
+        </Text>
         <View style={styles.container_content}>
           {
-            dataSource.map((item, index) => {
-              return (
-                <TouchableWithoutFeedback
-                  opacity={1}
-                  onPress={() => this.handlerChecked(item)}
-                  key={item}
-                >
-                  <View style={styles.container_content_item}>
+            dataSource.map((item, index) => (
+              <TouchableWithoutFeedback
+                opacity={1}
+                onPress={() => this.handlerChecked(item)}
+                key={item}
+              >
+                <View style={styles.container_content_item}>
+                  <View
+                    style={[
+                        styles.container_content_item_icon,
+                        { borderColor: item.label === this.state.value ? '#3e9ce9' : 'rgba(0,0,0,.4)' },
+                      ]}
+                  >
                     <View
                       style={[
-                        styles.container_content_item_icon,
-                        { borderColor: item.label === this.state.value ? '#3e9ce9' : 'rgba(0,0,0,.4)' }
-                      ]}
-                    >
-                      <View
-                        style={[
                           styles.container_content_item_icon_con,
-                          { backgroundColor: item.label === this.state.value ? '#3e9ce9' : 'rgba(0,0,0,.4)' }
+                          { backgroundColor: item.label === this.state.value ? '#3e9ce9' : 'rgba(0,0,0,.4)' },
                         ]}
-                      />
-                    </View>
-                    <Text
-                      style={[
-                        styles.container_content_item_text,
-                        { color: item.label === this.state.value ? '#3e9ce9' : 'rgba(0,0,0,.4)' }
-                      ]}
-                    >{item.text}</Text>
-
+                    />
                   </View>
-                </TouchableWithoutFeedback>
-              )
-            })
+                  <Text
+                    style={[
+                        styles.container_content_item_text,
+                        { color: item.label === this.state.value ? '#3e9ce9' : 'rgba(0,0,0,.4)' },
+                      ]}
+                  >{item.text}
+                  </Text>
+
+                </View>
+              </TouchableWithoutFeedback>
+              ))
           }
         </View>
       </View>
     );
-
   }
-};
+}
 

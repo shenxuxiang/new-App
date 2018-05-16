@@ -15,8 +15,9 @@ import Icon from '../../components/Icon';
 import { Toast, Storage, createAction } from '../../utils';
 
 import TabBarIcon from '../../components/TabBarIcon';
+import EmptyContent from '../../components/EmptyContent';
 
-const mapStateToProps = (state) => ({
+const mapStateToProps = state => ({
   category: state.app.category,
 });
 
@@ -27,7 +28,7 @@ const mapDispatchToProps = {
 
 @connect(mapStateToProps, mapDispatchToProps)
 export default class Category extends PureComponent {
-  static navigationOptions = ({navigation}) => ({
+  static navigationOptions = ({ navigation }) => ({
     tabBarLabel: '分类',
     headerLeft: <Text style={styles.headerLeftIcon}>分类</Text>,
     headerRight: (
@@ -48,13 +49,13 @@ export default class Category extends PureComponent {
       />
     ),
     tabBarIcon: ({ focused, tintColor }) =>
-      <TabBarIcon
+      (<TabBarIcon
         name="collection"
         activeName="collection_fill"
         size={22}
         tintColor={tintColor}
         focused={focused}
-      />
+      />),
   })
 
   static propTypes = {
@@ -73,7 +74,7 @@ export default class Category extends PureComponent {
   }
 
   componentDidMount() {
-    this.props.getCategory()
+    this.props.category.length <= 0 && this.props.getCategory()
       .catch(err => console.log(err));
     Storage.getItem('MYCATEGORY')
       .then((data) => {
@@ -87,15 +88,16 @@ export default class Category extends PureComponent {
       Toast.showShort(`选取的分类不能超过${this.maxCategory}个~~~`);
       return;
     } else if (selectedArray.length === 0) {
-      Toast.showShort(`选取的分类不能为空哦~~~`);
+      Toast.showShort('选取的分类不能为空哦~~~');
       return;
     }
     const result = selectedArray.map(id => this.props.category.find(obj => obj.id === id));
+    Storage.setItem('MYCATEGORY', result);
     DeviceEventEmitter.emit('changeCategory', result);
-    Storage.setItem('MYCATEGORY', result)
-      .then(() => {
-        this.props.navigation.navigate('Mine');
-      });
+    this.props.navigation.navigate('Mine');
+    // .then(() => {
+    //   this.props.navigation.navigate('Mine');
+    // });
   }
 
   updateCategory = (item) => {
@@ -124,6 +126,7 @@ export default class Category extends PureComponent {
   }
 
   render() {
+    if (this.props.category.length <= 0) return <EmptyContent />;
     return (
       <View
         style={styles.container}
@@ -151,7 +154,7 @@ export default class Category extends PureComponent {
       </View>
     );
   }
-};
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -170,7 +173,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
   },
   headerLeftIcon: {
     paddingHorizontal: 30,
@@ -181,4 +184,4 @@ const styles = StyleSheet.create({
   headerRightIcon: {
     paddingHorizontal: 15,
   },
-})
+});

@@ -24,5 +24,5 @@ const showLong = (content, position = 'CENTER', isAlert) => {
 
 export default {
   showShort,
-  showLong
+  showLong,
 };

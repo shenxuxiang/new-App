@@ -39,7 +39,7 @@ export default class MyProgress extends PureComponent {
           if (info.value === this.totalLength) {
             this.props.onProgressEnd();
           }
-        })
+        });
       });
     }
   }
@@ -53,12 +53,12 @@ export default class MyProgress extends PureComponent {
     if (width > 0) {
       this.progressOne.setNativeProps({
         style: {
-          height: height,
+          height,
         },
       });
       this.progressTwo.setNativeProps({
         style: {
-          height: height,
+          height,
         },
       });
       this.totalLength = width;
@@ -91,17 +91,17 @@ export default class MyProgress extends PureComponent {
         <Animated.View
           ref={ref => this.progressOne = ref}
           style={{
-            position:'absolute',
-            width:this.progressOneVal,
+            position: 'absolute',
+            width: this.progressOneVal,
             backgroundColor: this.props.progressColor,
           }}
         />
         <Animated.View
           ref={ref => this.progressTwo = ref}
           style={{
-            position:'absolute',
-            width:this.progressTwoVal,
-            backgroundColor:this.props.progressColor,
+            position: 'absolute',
+            width: this.progressTwoVal,
+            backgroundColor: this.props.progressColor,
           }}
         />
       </View>

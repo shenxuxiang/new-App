@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
     borderBottomColor: '#ccc',
-    borderBottomWidth: 1/PixelRatio.get(),
+    borderBottomWidth: 1 / PixelRatio.get(),
   },
   title: {
     lineHeight: 42,
@@ -24,11 +24,13 @@ const styles = StyleSheet.create({
     lineHeight: 32,
     fontSize: 14,
     color: 'rgba(0,0,0,.6)',
-  }
+  },
 });
 
 export default function TextInfo(props) {
-  const { title, content, titleStyle, contentStyle, viewStyle } = props;
+  const {
+    title, content, titleStyle, contentStyle, viewStyle,
+  } = props;
   return (
     <View style={[styles.contain, viewStyle]}>
       <Text style={[styles.title, titleStyle]}>{title}:</Text>

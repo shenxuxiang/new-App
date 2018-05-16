@@ -31,7 +31,7 @@ export default {
           id: payload.id,
         },
       });
-    }
+    },
   },
   subscriptions: {},
 };

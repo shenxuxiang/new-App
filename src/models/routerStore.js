@@ -23,18 +23,18 @@ export default {
   },
   effects: {
     watch: [
-      function * watch({ take, call, put }) {
+      function* watch({ take, call, put }) {
         while (true) {
           const payload = yield take(actions);
           yield put({
             type: 'apply',
             payload,
           });
-          if ( payload.type === 'Navigation/NAVIGATE') {
+          if (payload.type === 'Navigation/NAVIGATE') {
             yield call(delay, 500);
           }
         }
-      }, { type: 'watcher' }
+      }, { type: 'watcher' },
     ],
-  }
-}
+  },
+};

@@ -119,6 +119,31 @@ router.post('/getUserInfo', async (ctx, next) => {
   ctx.body = result;
 });
 
+router.post('/getUserList', async (ctx, next) => {
+  const reqData = await parsePostData(ctx);
+  const { query } = reqData;
+  let searchInfo;
+  if (!query) {
+    searchInfo = {};
+  } else if (/^(13|15|17|18)\d{9}$/.test(query)) {
+    searchInfo = { userMobile: query };
+  } else {
+    searchInfo = { userName: query };
+  }
+  const userList = await db.find('userBaseInfo', searchInfo);
+  const result = {
+    code: 0,
+    msg: 'ERROR',
+    data: null,
+  };
+  if (userList) {
+    result.code = 1;
+    result.msg = 'SUCCESS',
+    result.data = userList;
+  }
+  ctx.body = result;
+});
+
 router.post('/updateUserInfo', async (ctx, next) => {
   const reqData = await parsePostData(ctx);
   const { userMobile } = reqData;

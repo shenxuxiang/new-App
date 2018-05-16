@@ -15,11 +15,9 @@ export const RegExpObj = {
   passWord: /^(?=[A-Z][a-zA-Z])(?=.*\d+)(?=.*[\~\!\@\#\$%\^&\*\(\)_\+\{\}\:\;\"\"\'\/\`\?\<\>\.\,\[\]\-\=\\\|]+)[a-zA-Z0-9\x21-x7e]{6,18}$/,
 };
 
-export const fetch = (...options) => {
-  return Promise.race([
-    sendRequest(...options),
-    new Promise((resolve, reject) => setTimeout(() => {
-      reject({ msg: '请求超时了~~' });
-    }, 30000)),
-  ]);
-};
+export const fetch = (...options) => Promise.race([
+  sendRequest(...options),
+  new Promise((resolve, reject) => setTimeout(() => {
+    reject({ msg: '请求超时了~~' });
+  }, 30000)),
+]);
