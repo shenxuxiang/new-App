@@ -30,7 +30,6 @@ const TabContainer = TabNavigator(
   },
   {
     tabBarPosition: 'bottom',
-    // initialRouteName:'About',
     swipeEnabled: false,
     animationEnabled: false,
     lazy: true,
