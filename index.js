@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { AppRegistry } from 'react-native';
-// import 'babel-polyfill';
 import dva from './src/utils/dva';
 import logger from 'redux-logger';
 import appStore from './src/models/appStore';
@@ -11,7 +10,6 @@ import Router from './src/Router';
 import { Toast } from './src/utils';
 const app = dva({
   models: [appStore, newsStore, routerStore, userInfoStore],
-  // onAction: [logger],
   onError: err => Toast.showShort(err.msg),
 });
 
